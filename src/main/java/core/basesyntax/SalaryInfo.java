@@ -1,17 +1,27 @@
 package core.basesyntax;
 
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class SalaryInfo {
-    private StringBuilder builder;
-    private DateTimeFormatter formatter;
-    private String[] split = new String[4];
-    private int salary;
 
     public String getSalaryInfo(String[] names, String[] data, String dateFrom, String dateTo) {
+        StringBuilder builder;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        LocalDate dateFromLocal;
+        LocalDate dateToLocal;
+        LocalDate dateActualLocal;
+        String[] split = new String[4];
+        int salary;
+        int zero = 0;
+        int one = 1;
+        int two = 2;
+        int three = 3;
 
+        dateFromLocal = LocalDate.parse(dateFrom, formatter);
+        dateToLocal = LocalDate.parse(dateTo, formatter);
         builder = new StringBuilder();
-        if (checkDates(dateTo, dateFrom) && !dateTo.equals(dateFrom)) {
+        if (dateFromLocal.isAfter(dateToLocal)) {
             return null;
         }
         builder.append("Report for period ")
@@ -20,14 +30,18 @@ public class SalaryInfo {
                 .append(dateTo);
         for (String name : names) {
 
-            builder.append("\n")
+            builder.append(System.lineSeparator())
                     .append(name);
-            salary = 0;
+            salary = zero;
             for (String dates : data) {
                 split = dates.split(" ");
-                if (checkDates(dateFrom, split[0]) && checkDates(split[0], dateTo)
-                        && name.equals(split[1])) {
-                    salary += Integer.parseInt(split[2]) * Integer.parseInt(split[3]);
+                dateActualLocal = LocalDate.parse(split[zero], formatter);
+                if (((dateFromLocal.isBefore(dateActualLocal)
+                        && dateActualLocal.isBefore(dateToLocal))
+                        || dateFromLocal.isEqual(dateActualLocal)
+                        || dateActualLocal.isEqual(dateToLocal))
+                        && name.equals(split[one])) {
+                    salary += Integer.parseInt(split[two]) * Integer.parseInt(split[three]);
                 }
 
             }
@@ -38,24 +52,4 @@ public class SalaryInfo {
         return builder.toString();
     }
 
-    public Boolean checkDates(String firstDate, String secondDate) {
-        String[] firstNumbers = new String[3];
-        String[] secondNumbers = new String[3];
-        firstNumbers = firstDate.split("\\.");
-        secondNumbers = secondDate.split("\\.");
-
-        if (Integer.parseInt(firstNumbers[2]) < Integer.parseInt(secondNumbers[2])) {
-            return true;
-        } else if (Integer.parseInt(firstNumbers[2]) == Integer.parseInt(secondNumbers[2])) {
-            if (Integer.parseInt(firstNumbers[1]) < Integer.parseInt(secondNumbers[1])) {
-                return true;
-            } else if (Integer.parseInt(firstNumbers[1]) == Integer.parseInt(secondNumbers[1])) {
-                if (Integer.parseInt(firstNumbers[0]) <= Integer.parseInt(secondNumbers[0])) {
-                    return true;
-                }
-            }
-        }
-        return false;
-
-    }
 }
